@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Escenes de realitat virtual 360º</title>
+    <meta name="description" content="Sky i videosphere">
+    <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
+    <style>
+      html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+      a-scene { position: fixed; inset: 0; width: 100%; height: 100%; }
+      a-scene[hidden] { display: none; }
+      header { position: fixed; z-index: 10; top: 1rem; left: 1rem; }
+      nav { display: flex; gap: 0.5rem; }
+      button {
+        padding: 10px;
+        background: rgba(15, 23, 42, .72);
+        color: #fff;
+        backdrop-filter: blur(6px);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <button type="button" data-scene="imatge">Panoràmica fixa</button>
+        <button type="button" data-scene="video">Panoràmica en vídeo</button>
+      </nav>
+    </header>
+
+    <a-scene id="escena-imatge" embedded>
+      <a-assets>
+        <img id="panorama-fix" src="assets/image360.png" alt="">
+      </a-assets>
+      <a-sky id="fons-imatge" radius="10" src="#panorama-fix"></a-sky>
+      <a-camera><a-cursor color="#ff66ff"></a-cursor></a-camera>
+    </a-scene>
+
+    <a-scene id="escena-video" embedded hidden>
+      <a-assets>
+        <video id="panorama-video" src="assets/video360.mkv" autoplay loop muted playsinline preload="auto"></video>
+      </a-assets>
+      <a-videosphere src="#panorama-video"></a-videosphere>
+      <a-camera><a-cursor color="#ff66ff"></a-cursor></a-camera>
+    </a-scene>
+
+    <script>
+      const buttons = document.querySelectorAll('[data-scene]');
+      const scenes = {
+        imatge: document.querySelector('#escena-imatge'),
+        video: document.querySelector('#escena-video')
+      };
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const selected = button.dataset.scene;
+          Object.entries(scenes).forEach(([name, scene]) => {
+            scene.hidden = name !== selected;
+          });
+          buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+          scenes[selected].resize();
+          if (selected === 'video') {
+            const video = document.querySelector('#panorama-video');
+            video.play().catch(() => {});
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
